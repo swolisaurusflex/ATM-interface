@@ -1,0 +1,313 @@
+#include <iostream>
+#include <iomanip>
+#include <string>
+#include <locale>
+
+void splashScreen();
+void updateScreen(const std::string&, const int&, const double&, const double&);
+void clearScreen();
+void tempScreen(const std::string&);
+int login(int&, const int&, const int&);
+double balance(const int&, double&);
+double deposit(const int&, double&);
+double withdraw(const int&, double&);
+int leave(int&);
+
+//enum options for top menu
+enum menuOptions
+{
+	LOG = 1,
+	BAL = 2,
+	DEP = 3,
+	WTD = 4,
+	EXT = 5,
+	ERROR
+};
+
+int main()
+
+{
+	using std::cout;
+	using std::cin;
+	using std::locale;
+
+	cout.imbue(locale(""));
+
+	int loginStatus = -1;
+	double acctBalances[10] = { 1000,1000,1000,1000,1000,1000,1000,1000,1000,1000 };
+	int pins[10] = { 0000,1111,2222,3333,4444,5555,6666,7777,8888,9999 };
+	int	userSelection = 1;
+	int loginEntry = 0;
+
+	cout << "\n\t////////////////////////////////////////////////";
+	cout << "\n\t//                                            //";
+	cout << "\n\t//                 Welcome to                 //";
+	cout << "\n\t//           The Blue Heeler Bank             //";
+	cout << "\n\t//       Automated Teller Machine (ATM)       //";
+	cout << "\n\t//                                            //";
+	cout << "\n\t////////////////////////////////////////////////";
+
+	cout << "\n\t";
+	//system("pause");
+
+menu:
+	splashScreen();
+	cin >> userSelection;
+
+	switch (userSelection)
+	{
+	case LOG:
+	{
+		cout << "\n\t  Please enter your account number: ";
+		cin >> loginEntry;
+		login(loginStatus, loginEntry, pins[loginEntry]);
+		goto menu;
+		break;
+	}
+	case BAL: balance(loginStatus, acctBalances[loginStatus]); goto menu; break;
+	case DEP: deposit(loginStatus, acctBalances[loginStatus]); goto menu; break;
+	case WTD: withdraw(loginStatus, acctBalances[loginStatus]); goto menu; break;
+	case EXT: leave(loginStatus); goto menu;  break;
+	default: cout << "Please make a valid selection. \n"; break;
+	}
+
+	return 0;
+}
+
+void splashScreen()
+{
+	using std::cout;
+	using std::cin;
+
+	cout << "\n\t///////////////////Main Menu////////////////////";
+	cout << "\n\t//                                            //";
+	cout << "\n\t//               1. Sign In                   //";
+	cout << "\n\t//               2. Balance                   //";
+	cout << "\n\t//               3. Deposit                   //";
+	cout << "\n\t//               4. Withdraw                  //";
+	cout << "\n\t//               5. Exit                      //";
+	cout << "\n\t//                                            //";
+	cout << "\n\t////////////////////////////////////////////////";
+	cout << "\n\t  Please choose an option:  ";
+}
+
+void tempScreen(const std::string& disp)
+{
+	using std::cout;
+	using std::setw;
+	using std::left;
+	using std::string;
+
+	cout << "\n\t//////////////The Blue Heeler Bank//////////////";
+	cout << "\n\t//                                            //";
+	cout << "\n\t//                                            //";
+	cout << "\n\t//               " << setw(15) << left << disp << "              //";
+	cout << "\n\t//                                            //";
+	cout << "\n\t//                                            //";
+	cout << "\n\t////////////////////////////////////////////////";
+}
+
+void updateScreen(const std::string& disp, const int& disp2, const double& disp3, const double& disp4)
+{
+	using std::cout;
+	using std::setw;
+	using std::left;
+	using std::string;
+
+	cout << "\n\t****************************************************************";
+	cout << "\n\t Your current balance is: $" << disp3;
+	cout << "\n\t The following funds were " << disp << " from your account: $" << disp2;
+	cout << "\n\t Your new balance is: $" << disp4;
+	cout << "\n\t****************************************************************";
+}
+
+void clearScreen()
+{
+	for (int i = 0; i < 20; i++)
+	{
+		std::cout << "\n";
+	}
+}
+
+int login(int& loginStatus, const int& loginEntry, const int& acctPin)
+{
+	using std::cout;
+	using std::cin;
+	int pinEntry = -1111;
+
+	tempScreen("Sign On Screen");
+
+	while (pinEntry != acctPin)
+	{
+		cout << "\n\t  Please enter your four-digit PIN: ";
+		cin >> pinEntry;
+
+		if (pinEntry == acctPin)
+		{
+			loginStatus = loginEntry;
+			cout << "\n\t  Your PIN is correct. You are now signed in. Thank you.\n";
+
+			return loginStatus;
+		}
+		else
+		{
+			char attempt;
+
+			cout << "\n\t  You have entered an incorrect PIN. Would you like to try again?";
+			cout << "\n\t  Input 'Y' for yes or 'N' for no: \n";
+
+			cin >> attempt;
+			if (attempt == 'Y' || attempt == 'y')
+			{
+				continue;
+			}
+			else
+			{
+				return loginStatus;
+			}
+		}
+	}
+}
+
+double balance(const int& test, double& bal)
+{
+	if (test != -1)
+	{
+		using std::cout;
+
+		tempScreen("Balance");
+
+		//display balance
+		updateScreen("maintained", bal, bal, bal);
+
+		if (bal < 100)
+		{
+			cout << "\n\t  Warning: Low Balance";
+			return bal;
+		}
+		return bal;
+	}
+	else
+	{
+		return bal;
+	}
+}
+
+
+
+double deposit(const int& test, double& bal)
+{
+	using std::cout;
+	using std::cin;
+
+	if (test != -1)
+	{
+		tempScreen("Deposits");
+
+		double dep = 0;
+
+		cout << "\n\t Enter amount to deposit: ";
+		cin >> dep;
+
+		//if deposit > 0, add to balance
+		if (dep > 0)
+		{
+			updateScreen("deposited", dep, bal, (bal+dep));
+			bal = bal + dep;
+		}
+		/*while dep < 0, display Error, ask to enter deposit amount again.
+		If failed twice, brings user back to main menu.*/
+		while (dep < 0)
+		{
+			cout << "\n\t Invalid Amount. Try Again.\n\tEnter an amount to deposit: ";
+			cin >> dep;
+			if (dep > 0)
+			{
+				cout << "\n\t Depositing $" << dep;
+				bal = bal + dep;
+				cout << "\n\t New Balance is: $" << bal;
+				break;
+			}
+			else if (dep < 0)
+			{
+				cout << "\n\t Invalid Amount";
+				break;
+			}
+		}
+	}
+	return bal;
+}
+
+double withdraw(const int& test, double& bal)
+{
+	using std::cout;
+	using std::cin;
+	if (test != -1)
+	{
+		tempScreen("Withdrawals");
+
+		//ask for withdraw amount, verify account has sufficient funds
+		cout << "\n\t Enter amount to withdraw: ";
+		double tempWithdraw = 0;
+		cin >> tempWithdraw;
+		// if withdraw is less than balance
+		if (tempWithdraw < bal)
+		{
+			updateScreen("withdrawn", tempWithdraw, bal, (bal - tempWithdraw));
+			bal = bal - tempWithdraw;
+		}
+		else if (tempWithdraw > bal)
+		{
+			cout << "\n\t Balance is insufficient.\n\tAvailable Balance: $" << bal << "\n\tEnter amount to withdraw: ";
+			cin >> tempWithdraw;
+			if (tempWithdraw < bal)
+			{
+				cout << "\n\t Your remaining balance is $" << bal - tempWithdraw << "\n";
+				bal = bal - tempWithdraw;
+			}
+			else
+			{
+				cout << "\n\t Balance is insufficient.\n";
+			}
+		}
+	}
+	return bal;
+}
+
+int leave(int& loginStatus)
+{
+	using std::cout;
+	using std::cin;
+	//using std::exit;
+	int pinEntry;
+	char optSelect;
+
+	tempScreen("Sign Off Screen");
+
+	while (loginStatus != -1)
+	{
+		cout << "\n\t  Would you like to sign off or exit terminal?";
+		cout << "\n\t  Input 'S' for sign off or 'E' to exit terminal:";
+		cin >> optSelect;
+
+		if (optSelect == 'S'|| optSelect == 's')
+		{
+			loginStatus = -1;
+			cout << "\n\t  You are now signed out. Thank you.\n";
+
+			return loginStatus;
+		}
+		else if (optSelect == 'E' || optSelect == 'e')
+		{
+			loginStatus = -1;
+			cout << "\n\t  You are now exiting the terminal";
+			//exit(0);
+			return loginStatus;
+		}
+		else
+		{
+			cout << "\n\t  You are still signed in.";
+			return loginStatus;
+		}
+	}
+}
